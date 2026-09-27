@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0b1118">
-<title>رفيق</title>
+<title>NEXO</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -138,7 +138,7 @@ nav button.on{color:var(--accent)}
 <body>
 
 <header><div class="wrap" style="display:flex;align-items:center;gap:12px">
-  <h1 id="botTitle">رفيق</h1>
+  <h1 id="botTitle">NEXO</h1>
   <div id="status" class="OFFLINE"><i></i><span>OFFLINE</span></div>
 </div></header>
 
@@ -187,7 +187,7 @@ nav button.on{color:var(--accent)}
         <button class="btn" id="rAdd">زيد الموعد</button>
         <button class="btn sec" id="notifBtn">فعّل الإشعارات</button>
       </div>
-      <p class="hint">التذكير يخدم كي يكون البرنامج مفتوح (حتى في الخلفية). ولا تقدر تقول لرفيق في المحادثة: «فكرني غدوة على 9 نروح للبنك».</p>
+      <p class="hint">التذكير يخدم كي يكون البرنامج مفتوح (حتى في الخلفية). ولا تقدر تقول لـ NEXO في المحادثة: «فكرني غدوة على 9 نروح للبنك».</p>
     </div>
     <div class="card"><h3>الجايين</h3><div id="rList"></div></div>
     <div class="card"><h3>اللي فاتو</h3><div id="rPast"></div></div>
@@ -209,7 +209,7 @@ nav button.on{color:var(--accent)}
   <!-- ============ الذاكرة ============ -->
   <section class="page" id="p-mem"><div class="wrap">
     <div class="card">
-      <h3>علّم رفيق</h3>
+      <h3>علّم NEXO</h3>
       <div class="row">
         <select class="in" id="mType" style="max-width:170px">
           <option value="dialect">اللهجة</option><option value="personal">معلومة عليّا</option>
@@ -218,7 +218,7 @@ nav button.on{color:var(--accent)}
         <input class="in" id="mText" placeholder="مثال: «درك» معناها الآن">
       </div>
       <div class="row" style="margin-top:10px"><button class="btn" id="mAdd">احفظ</button></div>
-      <p class="hint">رفيق يتعلّم وحدو من المحادثة كذلك (تقدر تطفي هاذي في الإعدادات). كل حاجة هنا تقدر تمسحها.</p>
+      <p class="hint">NEXO يتعلّم وحدو من المحادثة كذلك (تقدر تطفي هاذي في الإعدادات). كل حاجة هنا تقدر تمسحها.</p>
     </div>
     <div id="mList"></div>
   </div></section>
@@ -238,7 +238,7 @@ nav button.on{color:var(--accent)}
         <p class="hint">مجاني: aistudio.google.com ← Get API key ← Create API key. ملاحظة: في النسخة المجانية Google تقدر تستعمل المحادثات باش تحسّن النماذج، ما تبعثش أسرار.</p>
         <label class="f">النموذج</label>
         <input class="in" id="sGModel" dir="ltr" placeholder="gemini-3.8-flash">
-        <p class="hint">إذا خرجلك خطأ «model not found» رفيق يبدّل وحدو للنموذج اللي Google تقترحو.</p>
+        <p class="hint">إذا خرجلك خطأ «model not found» NEXO يبدّل وحدو للنموذج اللي Google تقترحو.</p>
       </div>
       <div id="cBox">
         <label class="f">مفتاح Claude API</label>
@@ -253,12 +253,12 @@ nav button.on{color:var(--accent)}
       </div>
       <p class="hint">المفاتيح يتحفظو غير في هاذ الجهاز.</p>
       <label class="f">اسم المساعد</label>
-      <input class="in" id="sBot" placeholder="رفيق">
+      <input class="in" id="sBot" placeholder="NEXO">
       <label class="f">اسمك</label>
       <input class="in" id="sName" placeholder="صادق">
       <label class="f">كيفاش يناديك</label>
       <input class="in" id="sCall" placeholder="مثال: سيدي، خويا، باسمي…">
-      <label class="f">أسلوب رفيق</label>
+      <label class="f">أسلوب NEXO</label>
       <select class="in" id="sStyle">
         <option value="butler">مساعد ذكي رسمي — هادي، واثق، فيه نكتة باردة</option>
         <option value="friend">صاحب — عفوي وقريب</option>
@@ -325,7 +325,7 @@ nav button.on{color:var(--accent)}
       <h3>خطر</h3>
       <div class="row">
         <button class="btn dan" id="clrChat">امسح المحادثة</button>
-        <button class="btn dan" id="clrAll">امسح كل بيانات رفيق</button>
+        <button class="btn dan" id="clrAll">امسح كل بيانات NEXO</button>
       </div>
     </div>
   </div></section>
@@ -346,7 +346,7 @@ nav button.on{color:var(--accent)}
   <input class="in" id="vCap">
   <div class="row" style="margin-top:10px">
     <button class="btn sm" id="vSave">احفظ الوصف</button>
-    <button class="btn sec sm" id="vAsk">💬 اسأل رفيق عليها</button>
+    <button class="btn sec sm" id="vAsk">💬 اسأل NEXO عليها</button>
     <button class="btn sec sm" id="vDl">⬇️ حمّل</button>
     <button class="btn dan sm" id="vDel">امسح</button>
     <button class="btn sec sm" id="vClose">سكّر</button>
@@ -365,7 +365,7 @@ nav button.on{color:var(--accent)}
 
 <script>
 /* =====================================================
-   رفيق — مساعد شخصي في ملف واحد
+   NEXO — مساعد شخصي في ملف واحد
    التخزين: IndexedDB باسم خاص (rafiq_v1_db) — ما يمسّش بيانات برامج أخرى
    ===================================================== */
 const NS = 'rafiq_v1';
@@ -401,7 +401,7 @@ const phPut = p => rq(store('photos','readwrite').put(p));
 const phDel = id => rq(store('photos','readwrite').delete(id));
 
 /* ---------------- الحالة ---------------- */
-const DEFAULTS = {botName:'رفيق', provider:'gemini', gKey:'', gModel:'gemini-3.8-flash', apiKey:'', model:'claude-sonnet-5', name:'', call:'', autoLearn:true,
+const DEFAULTS = {botName:'NEXO', provider:'gemini', gKey:'', gModel:'gemini-3.8-flash', apiKey:'', model:'claude-sonnet-5', name:'', call:'', autoLearn:true,
   voiceLang:'ar-DZ', voiceName:'', pitch:0.8, rate:0.92, speak:true, style:'butler', ttsEngine:'gemini', gVoice:'Charon', gStyle:'refined British accent, calm and measured, polite, dry wit, crisp enunciation, warm but composed, like a sophisticated AI butler'};
 const S = {settings:{...DEFAULTS}, memory:[], appts:[], chat:[], photos:[]};
 const save = k => kvSet(k, S[k]).catch(e => toast('ما قدرتش نحفظ: ' + e.message));
@@ -576,7 +576,7 @@ function stopListening(){ try { rec && rec.stop(); } catch(e){} }
 function toggleLive(){
   liveMode = !liveMode;
   $('#live').classList.toggle('live', liveMode);
-  if (liveMode){ toast('وضع المحادثة: اهدر ورفيق يجاوبك بالصوت. اضغط 🎧 باش توقف'); startListening(); }
+  if (liveMode){ toast('وضع المحادثة: اهدر و NEXO يجاوبك بالصوت. اضغط 🎧 باش توقف'); startListening(); }
   else stopLive();
 }
 function stopLive(){ liveMode = false; $('#live').classList.remove('live'); stopListening(); stopSpeaking(); idleState(); }
@@ -597,7 +597,7 @@ function buildSystem(){
   const persona = st.style === 'friend'
     ? 'شخصيتك: صاحب قريب، عفوي، تهدر ببساطة وبنكتة، ودايماً تعاون.'
     : 'شخصيتك: مساعد ذكي راقي وواثق، هادي، ذكي بزاف، فيه نكتة باردة وخفيفة من حين لحين. تهدر كيما إنسان حقيقي ماشي كيما روبو: جمل طبيعية، ما تعاودش نفس البدايات، ما تقولش "كيف نقدر نعاونك" في كل رد، وما تسقسيش أسئلة بلا فايدة. كي يسلّم عليك، ردّ عليه بخفة كيما صاحب قديم.';
-  return `أنت "${st.botName || 'رفيق'}"، المساعد الشخصي الخاص بـ ${name}. ${persona}
+  return `أنت "${st.botName || 'NEXO'}"، المساعد الشخصي الخاص بـ ${name}. ${persona}
 ${st.call ? `نادي المستخدم بـ: "${st.call}".` : ''}
 
 قواعد:
@@ -781,7 +781,7 @@ function renderChat(){
   const box = $('#msgs');
   if (!S.chat.length){
     const n = S.settings.name ? ' ' + esc(S.settings.name) : '';
-    box.innerHTML = `<div class="hello">مرحبا${n} 👋<br>أنا ${esc(S.settings.botName || 'رفيق')}. اهدر معايا، علّمني لهجتك، وخليني نفكرك بمواعيدك.</div>
+    box.innerHTML = `<div class="hello">مرحبا${n} 👋<br>أنا ${esc(S.settings.botName || 'NEXO')}. اهدر معايا، علّمني لهجتك، وخليني نفكرك بمواعيدك.</div>
       <div class="sugg">
         <button>فكرني غدوة على 9 الصباح نروح للبنك</button>
         <button>علّمك: «درك» معناها الآن</button>
@@ -929,19 +929,19 @@ function fillVoiceSelect(){
 }
 function fillSettings(){
   const s = S.settings;
-  $('#sBot').value = s.botName || 'رفيق'; $('#sProv').value = s.provider; $('#sGKey').value = s.gKey; $('#sGModel').value = s.gModel; provUI();
+  $('#sBot').value = s.botName || 'NEXO'; $('#sProv').value = s.provider; $('#sGKey').value = s.gKey; $('#sGModel').value = s.gModel; provUI();
   $('#sKey').value = s.apiKey; $('#sModel').value = s.model; $('#sName').value = s.name; $('#sCall').value = s.call;
   $('#sLearn').checked = s.autoLearn; $('#sStyle').value = s.style || 'butler'; $('#sEngine').value = s.ttsEngine || 'gemini'; $('#sGVoice').value = s.gVoice || 'Charon'; $('#sGStyle').value = s.gStyle || ''; engUI(); $('#sLang').value = s.voiceLang; $('#sSpeak').checked = s.speak;
   $('#sPitch').value = s.pitch; $('#sRate').value = s.rate;
   $('#pitchV').textContent = s.pitch; $('#rateV').textContent = s.rate;
   fillVoiceSelect();
 }
-function applyName(){ const n = S.settings.botName || 'رفيق'; $('#botTitle').textContent = n; document.title = n; }
+function applyName(){ const n = S.settings.botName || 'NEXO'; $('#botTitle').textContent = n; document.title = n; }
 function engUI(){ const g = $('#sEngine').value === 'gemini'; $('#gvBox').hidden = !g; $('#dvBox').hidden = g; $('#dvHint').hidden = g; }
 function provUI(){ const g = $('#sProv').value !== 'claude'; $('#gBox').hidden = !g; $('#cBox').hidden = g; }
 function readSettings(){
   Object.assign(S.settings, {
-    botName:$('#sBot').value.trim() || 'رفيق', provider:$('#sProv').value, gKey:$('#sGKey').value.trim(), gModel:$('#sGModel').value.trim() || 'gemini-3.8-flash',
+    botName:$('#sBot').value.trim() || 'NEXO', provider:$('#sProv').value, gKey:$('#sGKey').value.trim(), gModel:$('#sGModel').value.trim() || 'gemini-3.8-flash',
     apiKey:$('#sKey').value.trim(), model:$('#sModel').value, name:$('#sName').value.trim(), call:$('#sCall').value.trim(),
     autoLearn:$('#sLearn').checked, style:$('#sStyle').value, ttsEngine:$('#sEngine').value, gVoice:$('#sGVoice').value, gStyle:$('#sGStyle').value.trim(), voiceLang:$('#sLang').value, voiceName:$('#sVoice').value,
     pitch:+$('#sPitch').value, rate:+$('#sRate').value, speak:$('#sSpeak').checked
@@ -957,13 +957,13 @@ async function exportAll(){
   const out = {app:'rafiq', version:1, exported:new Date().toISOString(), settings, memory:S.memory, appts:S.appts, chat:S.chat, photos};
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([JSON.stringify(out)], {type:'application/json'}));
-  a.download = `rafiq-backup-${localISO(new Date()).slice(0,10)}.json`; a.click();
+  a.download = `nexo-backup-${localISO(new Date()).slice(0,10)}.json`; a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 5000);
 }
 async function importAll(file){
   try {
     const d = JSON.parse(await file.text());
-    if (d.app !== 'rafiq') throw new Error('هاذ الملف ماشي نسخة تاع رفيق');
+    if (d.app !== 'rafiq') throw new Error('هاذ الملف ماشي نسخة تاع NEXO');
     const merge = (key) => { const ids = new Set(S[key].map(x => x.id)); (d[key] || []).forEach(x => { if (!ids.has(x.id)) S[key].push(x); }); save(key); };
     merge('memory'); merge('appts'); merge('chat');
     S.chat.sort((a, b) => a.t - b.t); save('chat');
@@ -1048,14 +1048,14 @@ function bind(){
     readSettings(); save('settings');
     speak(`حاضر${S.settings.call ? ' ' + S.settings.call : ''}. كل الأنظمة تخدم. واش نقدر ندير لك؟`);
   };
-  $('#sTest').onclick = () => { readSettings(); speak(`مرحبا${S.settings.call ? ' ' + S.settings.call : ''}. أنا ${S.settings.botName || 'رفيق'}، راني في الخدمة.`); };
+  $('#sTest').onclick = () => { readSettings(); speak(`مرحبا${S.settings.call ? ' ' + S.settings.call : ''}. أنا ${S.settings.botName || 'NEXO'}، راني في الخدمة.`); };
   $('#sSave').onclick = () => { readSettings(); save('settings'); applyName(); renderChat(); idleState(); toast('تحفظت الإعدادات ✔️'); };
   $('#bExp').onclick = exportAll;
   $('#bImp').onclick = () => $('#bFile').click();
   $('#bFile').onchange = e => { const f = e.target.files[0]; e.target.value = ''; if (f) importAll(f); };
   $('#clrChat').onclick = () => { if (confirm('نمسح المحادثة كاملة؟ (الذاكرة تبقى)')){ S.chat = []; save('chat'); renderChat(); } };
   $('#clrAll').onclick = () => {
-    if (!confirm('نمسح كل بيانات رفيق (مواعيد، صور، ذاكرة، محادثة)؟')) return;
+    if (!confirm('نمسح كل بيانات NEXO (مواعيد، صور، ذاكرة، محادثة)؟')) return;
     if (!confirm('متأكد؟ ما تقدرش ترجعها إلا بنسخة احتياطية.')) return;
     db.close(); const r = indexedDB.deleteDatabase(NS + '_db'); r.onsuccess = r.onerror = () => location.reload();
   };
@@ -1075,6 +1075,7 @@ if ('serviceWorker' in navigator && location.protocol === 'https:'){
   try {
     await openDB();
     S.settings = {...DEFAULTS, ...(await kvGet('settings') || {})};
+    if (!S.settings.botName || S.settings.botName === 'رفيق'){ S.settings.botName = 'NEXO'; save('settings'); }
     S.memory = await kvGet('memory') || [];
     S.appts = await kvGet('appts') || [];
     S.chat = await kvGet('chat') || [];
