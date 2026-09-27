@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b1118">
+<title>رفيق</title>
+<style>
+/* ============ الألوان (بدّلها كيما تحب) ============ */
+:root{
+  --bg:#0b1118; --surface:#131c26; --surface2:#1b2733; --line:#263545;
+  --text:#e6edf3; --muted:#8b9bab; --accent:#35d0ff; --accent2:#ffb547;
+  --danger:#ff5c6c; --ok:#3ddc97; --user:#1c3a52;
+  --radius:14px;
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    --bg:#f3f5f8; --surface:#ffffff; --surface2:#eef2f6; --line:#dbe2ea;
+    --text:#16202a; --muted:#5e6d7c; --accent:#0a8fc2; --accent2:#c77a06;
+    --user:#d9eefa;
+  }
+}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{background:var(--bg);color:var(--text);font-family:"Segoe UI",Tahoma,"Noto Sans Arabic",Arial,sans-serif;font-size:16px;display:flex;flex-direction:column;height:100dvh;overflow:hidden}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:none;background:none}
+.wrap{max-width:860px;margin:0 auto;width:100%}
+
+/* الرأس */
+header{display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--line);background:var(--surface)}
+header h1{font-size:20px;letter-spacing:.5px}
+#status{margin-inline-start:auto;font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px}
+#status i{width:9px;height:9px;border-radius:50%;background:var(--muted);display:inline-block}
+#status.ONLINE i{background:var(--ok)} #status.LISTENING i{background:var(--danger);animation:blink 1s infinite}
+#status.PROCESSING i{background:var(--accent2);animation:blink .6s infinite} #status.SPEAKING i{background:var(--accent);animation:blink .8s infinite}
+#status.ERROR i{background:var(--danger)}
+@keyframes blink{50%{opacity:.3}}
+
+main{flex:1;min-height:0;position:relative}
+.page{position:absolute;inset:0;overflow-y:auto;display:none;padding:16px}
+.page.on{display:block}
+#p-chat.on{display:flex;flex-direction:column;padding:0}
+
+/* الكرة */
+#orbBox{display:flex;justify-content:center;padding:28px 0 24px}
+#orb{width:86px;height:86px;border-radius:50%;position:relative;
+  background:radial-gradient(circle at 50% 50%, #bff3ff 0%, var(--accent) 35%, #0a4f6e 70%, transparent 72%);
+  box-shadow:0 0 22px var(--accent),inset 0 0 18px #fff3;transition:transform .15s}
+#orb::before,#orb::after{content:"";position:absolute;inset:-10px;border-radius:50%;border:2px solid var(--accent);opacity:.35}
+#orb::after{inset:-20px;border-style:dashed;opacity:.25;animation:spin 14s linear infinite}
+#orb.LISTENING{background:radial-gradient(circle,#ffd0d5 0%,var(--danger) 35%,#6e0a18 70%,transparent 72%);box-shadow:0 0 26px var(--danger)}
+#orb.LISTENING::before{border-color:var(--danger);animation:pulse 1.2s infinite}
+#orb.PROCESSING{background:radial-gradient(circle,#fff0d0 0%,var(--accent2) 35%,#6e4a0a 70%,transparent 72%);box-shadow:0 0 26px var(--accent2)}
+#orb.PROCESSING::after{border-color:var(--accent2);animation:spin 1.2s linear infinite;opacity:.6}
+#orb.SPEAKING::before{animation:pulse .7s infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%{transform:scale(1);opacity:.5}100%{transform:scale(1.35);opacity:0}}
+#orbLbl{text-align:center;font-size:12px;color:var(--muted);min-height:16px}
+
+/* المحادثة */
+#msgs{flex:1;overflow-y:auto;padding:10px 16px 16px;display:flex;flex-direction:column;gap:10px}
+.m{max-width:85%;padding:10px 13px;border-radius:var(--radius);line-height:1.6;white-space:pre-wrap;word-wrap:break-word}
+.m.user{align-self:flex-start;background:var(--user);border-bottom-right-radius:4px}
+.m.assistant{align-self:flex-end;background:var(--surface);border:1px solid var(--line);border-bottom-left-radius:4px}
+.m.error{align-self:center;background:transparent;color:var(--danger);font-size:14px;border:1px dashed var(--danger)}
+.m img.th{display:block;max-width:220px;border-radius:10px;margin-bottom:6px}
+.notes{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;white-space:normal}
+.chip{font-size:12.5px;padding:4px 9px;border-radius:20px;background:var(--surface2);border:1px solid var(--line)}
+.chip button{color:var(--accent);font-weight:600;margin-inline-start:6px}
+.sugg{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:10px}
+.sugg button{padding:8px 12px;border-radius:20px;border:1px solid var(--line);background:var(--surface);font-size:14px}
+.hello{text-align:center;color:var(--muted);margin-top:6px;line-height:1.7}
+
+#bar{border-top:1px solid var(--line);background:var(--surface);padding:8px 10px calc(8px + env(safe-area-inset-bottom))}
+#pend{display:none;align-items:center;gap:8px;margin-bottom:8px;font-size:13px}
+#pend img{width:48px;height:48px;object-fit:cover;border-radius:8px}
+#barRow{display:flex;gap:6px;align-items:flex-end}
+#inp{flex:1;resize:none;max-height:130px;min-height:44px;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:var(--bg);outline:none}
+#inp:focus{border-color:var(--accent)}
+.ib{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-size:20px;background:var(--surface2);flex-shrink:0}
+.ib.pri{background:var(--accent);color:#00131c}
+.ib.rec{background:var(--danger);color:#fff}
+.ib.live{background:var(--ok);color:#00150b}
+
+/* بطاقات عامة */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:12px}
+.card h3{font-size:16px;margin-bottom:10px}
+label.f{display:block;font-size:13px;color:var(--muted);margin:10px 0 4px}
+.in{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);outline:none}
+.in:focus{border-color:var(--accent)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.row>*{flex:1;min-width:140px}
+.btn{padding:10px 14px;border-radius:10px;background:var(--accent);color:#00131c;font-weight:600}
+.btn.sec{background:var(--surface2);color:var(--text);border:1px solid var(--line)}
+.btn.dan{background:transparent;color:var(--danger);border:1px solid var(--danger)}
+.btn.sm{padding:6px 10px;font-size:13px}
+.hint{font-size:12.5px;color:var(--muted);line-height:1.6;margin-top:6px}
+.sw{display:flex;align-items:center;justify-content:space-between;padding:8px 0}
+.sw input{width:20px;height:20px;accent-color:var(--accent)}
+
+.item{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line)}
+.item:last-child{border-bottom:none}
+.item .tx{flex:1;line-height:1.5}
+.item .sub{font-size:12.5px;color:var(--muted)}
+.item.done .tx{opacity:.5;text-decoration:line-through}
+.empty{color:var(--muted);font-size:14px;text-align:center;padding:14px}
+
+/* الصور */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(105px,1fr));gap:8px}
+.grid .ph{aspect-ratio:1;border-radius:10px;overflow:hidden;position:relative;background:var(--surface2)}
+.grid .ph img{width:100%;height:100%;object-fit:cover;display:block}
+.grid .ph span{position:absolute;bottom:0;inset-inline:0;background:#000a;color:#fff;font-size:11px;padding:3px 5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* نوافذ */
+.modal{position:fixed;inset:0;background:#000c;display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+.modal.on{display:flex}
+.modal .box{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px;width:100%;max-width:560px;max-height:92dvh;overflow:auto}
+#vImg{width:100%;max-height:60dvh;object-fit:contain;border-radius:10px;background:#000}
+#alarm .box{text-align:center;border-color:var(--accent2)}
+#alarm h2{font-size:22px;margin:10px 0}
+
+#toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--surface2);border:1px solid var(--line);padding:10px 16px;border-radius:20px;font-size:14px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:60;max-width:90vw;text-align:center}
+#toast.on{opacity:1}
+
+/* القائمة السفلية */
+nav{display:flex;border-top:1px solid var(--line);background:var(--surface);padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;padding:8px 0 7px;font-size:11.5px;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:2px}
+nav button b{font-size:20px;font-weight:400}
+nav button.on{color:var(--accent)}
+</style>
+</head>
+<body>
+
+<header><div class="wrap" style="display:flex;align-items:center;gap:12px">
+  <h1 id="botTitle">رفيق</h1>
+  <div id="status" class="OFFLINE"><i></i><span>OFFLINE</span></div>
+</div></header>
+
+<main>
+  <!-- ============ المحادثة ============ -->
+  <section class="page on" id="p-chat">
+    <div class="wrap" style="display:flex;flex-direction:column;flex:1;min-height:0">
+      <div id="orbBox"><div id="orb"></div></div>
+      <div id="orbLbl"></div>
+      <div id="msgs"></div>
+    </div>
+    <div id="bar"><div class="wrap">
+      <div id="pend">
+        <img id="pendImg" alt="">
+        <label style="display:flex;align-items:center;gap:5px"><input type="checkbox" id="pendSave" checked> احفظها في الصور</label>
+        <button class="btn sec sm" id="pendX" style="margin-inline-start:auto">✕</button>
+      </div>
+      <div id="barRow">
+        <button class="ib" id="attach" title="صورة">📎</button>
+        <button class="ib" id="live" title="وضع المحادثة الصوتية">🎧</button>
+        <textarea id="inp" rows="1" placeholder="اكتب ولا اهدر…"></textarea>
+        <button class="ib" id="mic" title="اهدر">🎤</button>
+        <button class="ib pri" id="send" title="ابعث">➤</button>
+      </div>
+      <input type="file" id="attachFile" accept="image/*" hidden>
+    </div></div>
+  </section>
+
+  <!-- ============ المواعيد ============ -->
+  <section class="page" id="p-rdv"><div class="wrap">
+    <div class="card">
+      <h3>موعد جديد</h3>
+      <input class="in" id="rTitle" placeholder="واش هو الموعد؟">
+      <div class="row">
+        <div><label class="f">الوقت</label><input class="in" type="datetime-local" id="rWhen"></div>
+        <div><label class="f">فكرني قبل</label>
+          <select class="in" id="rBefore">
+            <option value="0">وقتها برك</option><option value="5">5 دقايق</option>
+            <option value="15" selected>15 دقيقة</option><option value="30">30 دقيقة</option>
+            <option value="60">ساعة</option><option value="1440">نهار</option>
+          </select></div>
+      </div>
+      <label class="f">ملاحظة (اختياري)</label>
+      <input class="in" id="rNote">
+      <div class="row" style="margin-top:12px">
+        <button class="btn" id="rAdd">زيد الموعد</button>
+        <button class="btn sec" id="notifBtn">فعّل الإشعارات</button>
+      </div>
+      <p class="hint">التذكير يخدم كي يكون البرنامج مفتوح (حتى في الخلفية). ولا تقدر تقول لرفيق في المحادثة: «فكرني غدوة على 9 نروح للبنك».</p>
+    </div>
+    <div class="card"><h3>الجايين</h3><div id="rList"></div></div>
+    <div class="card"><h3>اللي فاتو</h3><div id="rPast"></div></div>
+  </div></section>
+
+  <!-- ============ الصور ============ -->
+  <section class="page" id="p-photos"><div class="wrap">
+    <div class="card">
+      <div class="row">
+        <button class="btn" id="phAdd">➕ زيد صور</button>
+        <input class="in" id="phSearch" placeholder="🔍 دوّر بالوصف">
+      </div>
+      <input type="file" id="phFile" accept="image/*" multiple hidden>
+      <p class="hint" id="phCount"></p>
+    </div>
+    <div class="grid" id="phGrid"></div>
+  </div></section>
+
+  <!-- ============ الذاكرة ============ -->
+  <section class="page" id="p-mem"><div class="wrap">
+    <div class="card">
+      <h3>علّم رفيق</h3>
+      <div class="row">
+        <select class="in" id="mType" style="max-width:170px">
+          <option value="dialect">اللهجة</option><option value="personal">معلومة عليّا</option>
+          <option value="pref">تفضيل</option><option value="other">أخرى</option>
+        </select>
+        <input class="in" id="mText" placeholder="مثال: «درك» معناها الآن">
+      </div>
+      <div class="row" style="margin-top:10px"><button class="btn" id="mAdd">احفظ</button></div>
+      <p class="hint">رفيق يتعلّم وحدو من المحادثة كذلك (تقدر تطفي هاذي في الإعدادات). كل حاجة هنا تقدر تمسحها.</p>
+    </div>
+    <div id="mList"></div>
+  </div></section>
+
+  <!-- ============ الإعدادات ============ -->
+  <section class="page" id="p-set"><div class="wrap">
+    <div class="card">
+      <h3>الذكاء الاصطناعي</h3>
+      <label class="f">المزوّد</label>
+      <select class="in" id="sProv">
+        <option value="gemini">Google Gemini — مجاني</option>
+        <option value="claude">Claude — بالدراهم</option>
+      </select>
+      <div id="gBox">
+        <label class="f">مفتاح Gemini</label>
+        <input class="in" id="sGKey" type="password" placeholder="AQ... ولا AIza..." autocomplete="off">
+        <p class="hint">مجاني: aistudio.google.com ← Get API key ← Create API key. ملاحظة: في النسخة المجانية Google تقدر تستعمل المحادثات باش تحسّن النماذج، ما تبعثش أسرار.</p>
+        <label class="f">النموذج</label>
+        <input class="in" id="sGModel" dir="ltr" placeholder="gemini-3.8-flash">
+        <p class="hint">إذا خرجلك خطأ «model not found» رفيق يبدّل وحدو للنموذج اللي Google تقترحو.</p>
+      </div>
+      <div id="cBox">
+        <label class="f">مفتاح Claude API</label>
+        <input class="in" id="sKey" type="password" placeholder="sk-ant-..." autocomplete="off">
+        <p class="hint">من console.anthropic.com (خلاص حسب الاستعمال).</p>
+        <label class="f">النموذج</label>
+        <select class="in" id="sModel">
+          <option value="claude-sonnet-5">Claude Sonnet 5</option>
+          <option value="claude-opus-5-5">Claude Opus 5.5</option>
+          <option value="claude-haiku-4-5-20251001">Claude Haiku 4.5</option>
+        </select>
+      </div>
+      <p class="hint">المفاتيح يتحفظو غير في هاذ الجهاز.</p>
+      <label class="f">اسم المساعد</label>
+      <input class="in" id="sBot" placeholder="رفيق">
+      <label class="f">اسمك</label>
+      <input class="in" id="sName" placeholder="صادق">
+      <label class="f">كيفاش يناديك</label>
+      <input class="in" id="sCall" placeholder="مثال: سيدي، خويا، باسمي…">
+      <label class="f">أسلوب رفيق</label>
+      <select class="in" id="sStyle">
+        <option value="butler">مساعد ذكي رسمي — هادي، واثق، فيه نكتة باردة</option>
+        <option value="friend">صاحب — عفوي وقريب</option>
+      </select>
+      <div class="sw"><span>يتعلّم وحدو من المحادثة</span><input type="checkbox" id="sLearn"></div>
+    </div>
+    <div class="card">
+      <h3>الصوت</h3>
+      <label class="f">لغة السمع (الميكرو)</label>
+      <select class="in" id="sLang">
+        <option value="ar-DZ">العربية - الجزائر</option><option value="ar-SA">العربية الفصحى</option>
+        <option value="fr-FR">Français</option><option value="en-US">English</option>
+      </select>
+      <label class="f">محرك الصوت</label>
+      <select class="in" id="sEngine">
+        <option value="gemini">صوت طبيعي (Gemini)</option>
+        <option value="device">صوت الجهاز (قديم، بلا نت)</option>
+      </select>
+      <div id="gvBox">
+        <label class="f">الصوت الطبيعي</label>
+        <select class="in" id="sGVoice">
+          <option value="Charon">Charon — عميق وهادي</option>
+          <option value="Iapetus">Iapetus — واضح ومرتب</option>
+          <option value="Sadaltager">Sadaltager — مثقف</option>
+          <option value="Rasalgethi">Rasalgethi — رسمي</option>
+          <option value="Schedar">Schedar — متوازن</option>
+          <option value="Orus">Orus — قوي وثابت</option>
+          <option value="Alnilam">Alnilam — حازم</option>
+          <option value="Algenib">Algenib — خشين</option>
+          <option value="Gacrux">Gacrux — ناضج</option>
+          <option value="Fenrir">Fenrir — حماسي</option>
+          <option value="Puck">Puck — خفيف</option>
+          <option value="Kore">Kore — نسائي</option>
+        </select>
+        <label class="f">طريقة الكلام (بالإنجليزية أحسن)</label>
+        <input class="in" id="sGStyle" dir="ltr">
+      </div>
+      <div id="dvBox">
+      <label class="f">صوت الجهاز</label>
+      <select class="in" id="sVoice"></select>
+      <div class="row">
+        <div><label class="f">الغلظة (Pitch): <b id="pitchV"></b></label><input type="range" id="sPitch" min="0.5" max="1.5" step="0.05" style="width:100%"></div>
+        <div><label class="f">السرعة: <b id="rateV"></b></label><input type="range" id="sRate" min="0.6" max="1.4" step="0.05" style="width:100%"></div>
+      </div>
+      </div>
+      <div class="sw"><span>يقرا الردود بالصوت</span><input type="checkbox" id="sSpeak"></div>
+      <div class="row">
+        <button class="btn" id="sPreset">🎙️ صوت المساعد البريطاني الراقي</button>
+        <button class="btn sec" id="sTest">🔊 جرّب الصوت</button>
+      </div>
+      <p class="hint" id="dvHint">صوت الجهاز: للصوت الرجالي الغليظ: في ويندوز جرّب "Microsoft Naayf" ولا "Hamed" (عربي) ولا "Ryan / George" (إنجليزي بريطاني)، وهبّط الغلظة لـ 0.8 تقريباً. في أندرويد تقدر تزيد أصوات من إعدادات Google TTS.</p>
+    </div>
+    <div class="row" style="margin-bottom:12px"><button class="btn" id="sSave">💾 احفظ الإعدادات</button></div>
+    <div class="card">
+      <h3>النسخة الاحتياطية</h3>
+      <div class="row">
+        <button class="btn sec" id="bExp">⬇️ صدّر كلش</button>
+        <button class="btn sec" id="bImp">⬆️ استورد</button>
+      </div>
+      <input type="file" id="bFile" accept=".json,application/json" hidden>
+      <p class="hint">الملف فيه المواعيد، الذاكرة، المحادثة والصور (بلا المفاتيح). استعملو باش تنقل البيانات من الحاسوب للهاتف.</p>
+    </div>
+    <div class="card">
+      <h3>خطر</h3>
+      <div class="row">
+        <button class="btn dan" id="clrChat">امسح المحادثة</button>
+        <button class="btn dan" id="clrAll">امسح كل بيانات رفيق</button>
+      </div>
+    </div>
+  </div></section>
+</main>
+
+<nav><div class="wrap" style="display:flex">
+  <button data-p="chat" class="on"><b>💬</b>المحادثة</button>
+  <button data-p="rdv"><b>📅</b>المواعيد</button>
+  <button data-p="photos"><b>🖼️</b>الصور</button>
+  <button data-p="mem"><b>🧠</b>الذاكرة</button>
+  <button data-p="set"><b>⚙️</b>الإعدادات</button>
+</div></nav>
+
+<!-- عارض الصور -->
+<div class="modal" id="viewer"><div class="box">
+  <img id="vImg" alt="">
+  <label class="f">الوصف</label>
+  <input class="in" id="vCap">
+  <div class="row" style="margin-top:10px">
+    <button class="btn sm" id="vSave">احفظ الوصف</button>
+    <button class="btn sec sm" id="vAsk">💬 اسأل رفيق عليها</button>
+    <button class="btn sec sm" id="vDl">⬇️ حمّل</button>
+    <button class="btn dan sm" id="vDel">امسح</button>
+    <button class="btn sec sm" id="vClose">سكّر</button>
+  </div>
+</div></div>
+
+<!-- المنبّه -->
+<div class="modal" id="alarm"><div class="box">
+  <div style="font-size:40px">⏰</div>
+  <h2 id="aTitle"></h2>
+  <p id="aBody" style="color:var(--muted)"></p>
+  <button class="btn" id="aOk" style="margin-top:14px;width:100%">تمام</button>
+</div></div>
+
+<div id="toast"></div>
+
+<script>
+/* =====================================================
+   رفيق — مساعد شخصي في ملف واحد
+   التخزين: IndexedDB باسم خاص (rafiq_v1_db) — ما يمسّش بيانات برامج أخرى
+   ===================================================== */
+const NS = 'rafiq_v1';
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad = n => String(n).padStart(2, '0');
+const localISO = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+const fmtDate = ms => new Date(ms).toLocaleString('ar-DZ', {weekday:'long', day:'numeric', month:'long', hour:'2-digit', minute:'2-digit'});
+const MEM_TYPES = {dialect:'اللهجة', personal:'معلومات عليّا', pref:'تفضيلات', other:'أخرى'};
+
+/* ---------------- قاعدة البيانات ---------------- */
+let db;
+function openDB(){
+  return new Promise((res, rej) => {
+    const r = indexedDB.open(NS + '_db', 1);
+    r.onupgradeneeded = () => {
+      const d = r.result;
+      if (!d.objectStoreNames.contains('kv')) d.createObjectStore('kv');
+      if (!d.objectStoreNames.contains('photos')) d.createObjectStore('photos', {keyPath:'id'});
+    };
+    r.onsuccess = () => { db = r.result; res(); };
+    r.onerror = () => rej(r.error);
+  });
+}
+const store = (n, m) => db.transaction(n, m).objectStore(n);
+const rq = r => new Promise((res, rej) => { r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
+const kvGet = k => rq(store('kv','readonly').get(k));
+const kvSet = (k, v) => rq(store('kv','readwrite').put(v, k));
+const phAll = () => rq(store('photos','readonly').getAll());
+const phPut = p => rq(store('photos','readwrite').put(p));
+const phDel = id => rq(store('photos','readwrite').delete(id));
+
+/* ---------------- الحالة ---------------- */
+const DEFAULTS = {botName:'رفيق', provider:'gemini', gKey:'', gModel:'gemini-3.8-flash', apiKey:'', model:'claude-sonnet-5', name:'', call:'', autoLearn:true,
+  voiceLang:'ar-DZ', voiceName:'', pitch:0.8, rate:0.92, speak:true, style:'butler', ttsEngine:'gemini', gVoice:'Charon', gStyle:'refined British accent, calm and measured, polite, dry wit, crisp enunciation, warm but composed, like a sophisticated AI butler'};
+const S = {settings:{...DEFAULTS}, memory:[], appts:[], chat:[], photos:[]};
+const save = k => kvSet(k, S[k]).catch(e => toast('ما قدرتش نحفظ: ' + e.message));
+
+/* ---------------- أدوات ---------------- */
+let toastT;
+function toast(t){ const el = $('#toast'); el.textContent = t; el.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('on'), 2600); }
+
+function setState(st, label){
+  const s = $('#status'); s.className = st; s.querySelector('span').textContent = st;
+  $('#orb').className = st;
+  const L = {LISTENING:'نسمع فيك…', PROCESSING:'نخمّم…', SPEAKING:'نهدر…', ERROR:'كاين مشكل', ONLINE:'', OFFLINE:'حط مفتاح API في الإعدادات'};
+  $('#orbLbl').textContent = label ?? L[st] ?? '';
+}
+const hasKey = () => S.settings.provider === 'claude' ? !!S.settings.apiKey : !!S.settings.gKey;
+const idleState = () => setState(hasKey() ? 'ONLINE' : 'OFFLINE');
+
+function goPage(p){
+  $$('.page').forEach(x => x.classList.toggle('on', x.id === 'p-' + p));
+  $$('nav button').forEach(b => b.classList.toggle('on', b.dataset.p === p));
+  if (p === 'rdv') renderAppts();
+  if (p === 'photos') renderPhotos();
+  if (p === 'mem') renderMemory();
+  if (p === 'set') fillSettings();
+  if (p === 'chat') scrollChat();
+}
+
+function loadImg(src){
+  return new Promise((res, rej) => {
+    const i = new Image(); i.onload = () => res(i); i.onerror = () => rej(new Error('ما قدرتش نقرا الصورة'));
+    i.src = src instanceof Blob ? URL.createObjectURL(src) : src;
+  });
+}
+function toJpeg(img, max, q){
+  const s = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+  const c = document.createElement('canvas');
+  c.width = Math.round(img.naturalWidth * s); c.height = Math.round(img.naturalHeight * s);
+  c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+  return c.toDataURL('image/jpeg', q);
+}
+function dataURLtoBlob(u){
+  const [h, b] = u.split(','); const mime = h.match(/:(.*?);/)[1];
+  const bin = atob(b); const a = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) a[i] = bin.charCodeAt(i);
+  return new Blob([a], {type:mime});
+}
+const blobToDataURL = b => new Promise(res => { const r = new FileReader(); r.onload = () => res(r.result); r.readAsDataURL(b); });
+
+/* ---------------- الصوت: الكلام (TTS) ---------------- */
+let voices = [];
+function loadVoices(){ voices = speechSynthesis?.getVoices?.() || []; fillVoiceSelect(); }
+if ('speechSynthesis' in window){ loadVoices(); speechSynthesis.onvoiceschanged = loadVoices; }
+
+function pickVoice(){
+  const st = S.settings;
+  if (st.voiceName){ const v = voices.find(v => v.name === st.voiceName); if (v) return v; }
+  const ar = voices.filter(v => v.lang.toLowerCase().startsWith('ar'));
+  const male = ar.find(v => /naayf|hamed|shakir|maged|male|رجل/i.test(v.name));
+  return male || ar[0] || null;
+}
+/* ---- صوت Gemini الطبيعي ---- */
+let curAudio = null, speakSeq = 0, ttsWarned = false;
+function stopSpeaking(){
+  speakSeq++;
+  try { speechSynthesis?.cancel(); } catch(e){}
+  if (curAudio){ try { curAudio.pause(); } catch(e){} curAudio = null; }
+}
+function b64ToBytes(b){ const bin = atob(b); const a = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) a[i] = bin.charCodeAt(i); return a; }
+function pcmToWav(pcm, rate){
+  const h = new ArrayBuffer(44), v = new DataView(h), w = (o, t) => [...t].forEach((c, i) => v.setUint8(o + i, c.charCodeAt(0)));
+  w(0,'RIFF'); v.setUint32(4, 36 + pcm.length, true); w(8,'WAVE'); w(12,'fmt ');
+  v.setUint32(16,16,true); v.setUint16(20,1,true); v.setUint16(22,1,true); v.setUint32(24,rate,true);
+  v.setUint32(28,rate*2,true); v.setUint16(32,2,true); v.setUint16(34,16,true); w(36,'data'); v.setUint32(40,pcm.length,true);
+  return new Blob([h, pcm], {type:'audio/wav'});
+}
+async function geminiTTS(text){
+  const st = S.settings, voice = st.gVoice || 'Charon';
+  const style = st.gStyle || 'refined British accent, calm and measured, polite, dry wit, crisp enunciation, warm but composed, like a sophisticated AI butler';
+  const bodies = [
+    {contents:[{role:'user', parts:[{text, speech_metadata:{style}}]}],
+     generationConfig:{responseModalities:['AUDIO'], speechConfig:{voiceConfig:{voice}}}},
+    {contents:[{role:'user', parts:[{text:`Say this in a ${style}: ${text}`}]}],
+     generationConfig:{responseModalities:['AUDIO'], speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:voice}}}}}
+  ];
+  let lastMsg = '';
+  for (const model of ['gemini-3.8-flash-tts', 'gemini-3.8-flash-lite-tts']){
+    for (const body of bodies){
+      const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
+        method:'POST', headers:{'content-type':'application/json', 'x-goog-api-key':st.gKey}, body:JSON.stringify(body)});
+      const d = await r.json().catch(() => ({}));
+      const part = (d.candidates?.[0]?.content?.parts || []).find(p => p.inlineData || p.inline_data);
+      if (r.ok && part){
+        const inl = part.inlineData || part.inline_data;
+        const bytes = b64ToBytes(inl.data), mime = (inl.mimeType || inl.mime_type || '').toLowerCase();
+        const isWav = bytes[0] === 82 && bytes[1] === 73 && bytes[2] === 70 && bytes[3] === 70; // RIFF
+        if (isWav) return new Blob([bytes], {type:'audio/wav'});
+        if (/mpeg|mp3|ogg|opus/.test(mime)) return new Blob([bytes], {type:mime});
+        const rate = +(mime.match(/rate=(\d+)/)?.[1] || 24000);
+        return pcmToWav(bytes, rate);
+      }
+      lastMsg = d?.error?.message || ('HTTP ' + r.status);
+      if (r.status === 429 || r.status === 401 || r.status === 403) throw new Error(lastMsg);
+      if (r.status !== 400) break; // 400 = نجرّب الشكل الثاني، غير هاك نروح للموديل الثاني
+    }
+  }
+  throw new Error(lastMsg);
+}
+function speak(text, onEnd){
+  const st = S.settings;
+  const useG = st.ttsEngine === 'gemini' && st.gKey;
+  if (!useG || !text) return speakDevice(text, onEnd);
+  stopSpeaking(); const my = speakSeq;
+  setState('PROCESSING', 'نحضّر الصوت…');
+  geminiTTS(cleanForSpeech(text)).then(blob => {
+    if (my !== speakSeq) return;
+    const a = new Audio(URL.createObjectURL(blob)); curAudio = a;
+    a.onplay = () => setState('SPEAKING');
+    a.onended = a.onerror = () => { URL.revokeObjectURL(a.src); if (curAudio === a) curAudio = null; idleState(); onEnd && onEnd(); };
+    a.play().catch(() => { idleState(); onEnd && onEnd(); });
+  }).catch(e => {
+    if (my !== speakSeq) return;
+    if (!ttsWarned){ ttsWarned = true; toast('الصوت الطبيعي ما خدمش (' + e.message.slice(0, 80) + ') — نستعمل صوت الجهاز'); }
+    speakDevice(text, onEnd);
+  });
+}
+function cleanForSpeech(t){ return t.replace(/[*_#`>]/g, '').replace(/https?:\/\/\S+/g, 'الرابط').trim(); }
+
+function speakDevice(text, onEnd){
+  if (!('speechSynthesis' in window) || !text){ onEnd && onEnd(); return; }
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(cleanForSpeech(text));
+  const v = pickVoice();
+  if (v){ u.voice = v; u.lang = v.lang; } else u.lang = 'ar';
+  u.pitch = +S.settings.pitch; u.rate = +S.settings.rate;
+  u.onstart = () => setState('SPEAKING');
+  u.onend = u.onerror = () => { idleState(); onEnd && onEnd(); };
+  speechSynthesis.speak(u);
+}
+
+/* ---------------- الصوت: السمع (STT) ---------------- */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let rec = null, listening = false, liveMode = false;
+
+function startListening(){
+  if (!SR){ toast('المتصفح هذا ما يدعمش السمع — استعمل Chrome ولا Edge'); return; }
+  if (listening) return;
+  stopSpeaking();
+  rec = new SR(); rec.lang = S.settings.voiceLang; rec.interimResults = true; rec.continuous = false;
+  let finalText = '';
+  rec.onstart = () => { listening = true; setState('LISTENING'); $('#mic').classList.add('rec'); };
+  rec.onresult = e => {
+    let interim = '';
+    for (let i = e.resultIndex; i < e.results.length; i++){
+      if (e.results[i].isFinal) finalText += e.results[i][0].transcript; else interim += e.results[i][0].transcript;
+    }
+    $('#inp').value = (finalText + interim).trim();
+  };
+  rec.onerror = e => {
+    if (e.error === 'not-allowed') { toast('لازم تسمح بالميكرو'); stopLive(); }
+    else if (e.error !== 'no-speech' && e.error !== 'aborted') toast('مشكل في السمع: ' + e.error);
+  };
+  rec.onend = () => {
+    listening = false; $('#mic').classList.remove('rec'); idleState();
+    const t = $('#inp').value.trim();
+    if (t) sendMsg();
+    else if (liveMode) setTimeout(startListening, 400); // ما سمع والو: يعاود يسمع
+  };
+  try { rec.start(); } catch(e){ listening = false; }
+}
+function stopListening(){ try { rec && rec.stop(); } catch(e){} }
+
+function toggleLive(){
+  liveMode = !liveMode;
+  $('#live').classList.toggle('live', liveMode);
+  if (liveMode){ toast('وضع المحادثة: اهدر ورفيق يجاوبك بالصوت. اضغط 🎧 باش توقف'); startListening(); }
+  else stopLive();
+}
+function stopLive(){ liveMode = false; $('#live').classList.remove('live'); stopListening(); stopSpeaking(); idleState(); }
+
+/* ---------------- الذكاء الاصطناعي ---------------- */
+function buildSystem(){
+  const st = S.settings, now = new Date();
+  const name = st.name || 'المستخدم';
+  const mem = S.memory.length
+    ? Object.keys(MEM_TYPES).map(k => {
+        const items = S.memory.filter(m => m.type === k);
+        return items.length ? `${MEM_TYPES[k]}:\n` + items.map(m => '- ' + m.text).join('\n') : '';
+      }).filter(Boolean).join('\n')
+    : '(مازال ما تعلّمت والو)';
+  const upcoming = S.appts.filter(a => !a.done && a.when > Date.now() - 3600e3).sort((a,b) => a.when - b.when).slice(0, 25);
+  const appts = upcoming.length ? upcoming.map(a => `- [${a.id}] ${localISO(new Date(a.when))} — ${a.title}${a.note ? ' ('+a.note+')' : ''}`).join('\n') : '(ما كاين حتى موعد)';
+
+  const persona = st.style === 'friend'
+    ? 'شخصيتك: صاحب قريب، عفوي، تهدر ببساطة وبنكتة، ودايماً تعاون.'
+    : 'شخصيتك: مساعد ذكي راقي وواثق، هادي، ذكي بزاف، فيه نكتة باردة وخفيفة من حين لحين. تهدر كيما إنسان حقيقي ماشي كيما روبو: جمل طبيعية، ما تعاودش نفس البدايات، ما تقولش "كيف نقدر نعاونك" في كل رد، وما تسقسيش أسئلة بلا فايدة. كي يسلّم عليك، ردّ عليه بخفة كيما صاحب قديم.';
+  return `أنت "${st.botName || 'رفيق'}"، المساعد الشخصي الخاص بـ ${name}. ${persona}
+${st.call ? `نادي المستخدم بـ: "${st.call}".` : ''}
+
+قواعد:
+- جاوب بنفس اللغة واللهجة اللي يهدر بيها (دارجة جزائرية، عربية فصحى، فرنسية، إنجليزية، ولا خليط). كي يهدر بالدارجة جاوب بالدارجة الجزائرية الطبيعية.
+- استعمل الكلمات والمعاني اللي علّمهالك في قسم "اللهجة".
+- ردودك قصيرة ومباشرة (جملة ولا زوج غالباً) لأنها تتقرا بالصوت. بلا جداول، بلا رموز، بلا إيموجي، وبلا قوائم.
+- كي تهدر بالدارجة، اكتب الدارجة الجزائرية كيما تنطق (واش، راني، بزاف، درك، كيفاش) ماشي فصحى مخلوطة.
+- ما تخترعش معلومات عليه. إذا ما تعرفش، قول.
+
+الوقت الحالي: ${localISO(now)} (${now.toLocaleDateString('ar-DZ',{weekday:'long'})})، المنطقة الزمنية: ${Intl.DateTimeFormat().resolvedOptions().timeZone}.
+
+واش تعرف على ${name}:
+${mem}
+
+المواعيد الجاية:
+${appts}
+
+أوامر خاصة — تكتبها في آخر الرد، كل أمر في سطر وحدو، والمستخدم ما يشوفهاش:
+[[SAVE|النوع|النص]] النوع واحد من: dialect أو personal أو pref أو other.
+  استعملها كي: يعلّمك كلمة ولا معنى بالدارجة (dialect)، يقولك حاجة على روحو تستاهل تتفكرها (personal)، يقولك واش يحب ولا كيفاش يحب تجاوبو (pref)، ولا يقولك "احفظ/تفكّر".
+  ما تحفظش حاجة راهي محفوظة، وما تحفظش حوايج عابرة ولا أسرار كيما كلمات السر وأرقام البطاقات.
+[[APPT|YYYY-MM-DDTHH:MM|العنوان]] كي يطلب تفكرو بحاجة ولا يعطيك موعد. إذا الوقت مش واضح، اسقسيه قبل ما تكتب الأمر.
+[[DEL_APPT|id]] كي يطلب تلغي موعد من القائمة الفوق.
+ما تقولش "حفظت" ولا "سجّلت" إلا إذا كتبت الأمر فعلاً.`;
+}
+
+async function callAI(imgB64){
+  const st = S.settings;
+  const hist = S.chat.filter(m => m.role === 'user' || m.role === 'assistant').slice(-24);
+  while (hist.length && hist[0].role !== 'user') hist.shift();
+  const msgs = [];
+  hist.forEach((m, i) => {
+    const isLast = i === hist.length - 1;
+    let txt = m.text || '';
+    let content;
+    if (isLast && imgB64){
+      content = [{type:'image', source:{type:'base64', media_type:'image/jpeg', data:imgB64}},
+                 {type:'text', text: txt || 'شوف هاذ الصورة'}];
+    } else {
+      if (m.thumb) txt = (txt ? txt + '\n' : '') + '[بعثت صورة]';
+      content = txt || '…';
+    }
+    const prev = msgs[msgs.length - 1];
+    if (prev && prev.role === m.role && typeof prev.content === 'string' && typeof content === 'string') prev.content += '\n' + content;
+    else msgs.push({role:m.role, content});
+  });
+
+  if (st.provider !== 'claude') return callGemini(msgs);
+  const r = await fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST',
+    headers:{'content-type':'application/json', 'x-api-key':st.apiKey, 'anthropic-version':'2023-06-01',
+             'anthropic-dangerous-direct-browser-access':'true'},
+    body: JSON.stringify({model:st.model, max_tokens:1200, system:buildSystem(), messages:msgs})
+  });
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(data?.error?.message || ('HTTP ' + r.status));
+  return (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('\n').trim();
+}
+
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+async function callGemini(msgs, retried){
+  const st = S.settings;
+  const main = (st.gModel || 'gemini-3.8-flash').trim();
+  // إذا الموديل مضغوط: نعاود مرتين، ومن بعد نجرّب موديلات احتياطية
+  const plan = [[main,0],[main,1500],[main,3500],['gemini-flash-latest',0],['gemini-flash-lite-latest',0]]
+    .filter((x, i, a) => i < 3 || x[0] !== main);
+  let lastErr;
+  for (const [model, wait] of plan){
+    if (wait){ setState('PROCESSING', 'الخدمة مضغوطة، نعاود…'); await sleep(wait); }
+    try { return await geminiOnce(msgs, model, retried || model !== main); }
+    catch(e){ lastErr = e; if (!e.busy && model === main) throw e; }
+  }
+  throw new Error('Google مضغوطة درك — عاود بعد دقيقة');
+}
+async function geminiOnce(msgs, model, retried){
+  const st = S.settings;
+  const contents = msgs.map(m => ({
+    role: m.role === 'assistant' ? 'model' : 'user',
+    parts: typeof m.content === 'string' ? [{text:m.content}]
+      : m.content.map(b => b.type === 'image' ? {inline_data:{mime_type:b.source.media_type, data:b.source.data}} : {text:b.text})
+  }));
+  const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
+    method:'POST', headers:{'content-type':'application/json', 'x-goog-api-key':st.gKey},
+    body: JSON.stringify({systemInstruction:{parts:[{text:buildSystem()}]}, contents, generationConfig:{maxOutputTokens:1500, temperature:0.8}})
+  });
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok){
+    const msg = data?.error?.message || ('HTTP ' + r.status);
+    if (r.status === 503 || r.status === 500 || /high demand|overloaded|unavailable/i.test(msg)){ const e = new Error(msg); e.busy = true; throw e; }
+    if (r.status === 429) throw new Error('وصلت للحد المجاني تاع اليوم ولا الدقيقة — استنى شوية وعاود');
+    const sug = !retried && msg.match(/use (?:the )?(?:models\/)?(gemini-[\w.-]*\w)/i);
+    if (sug && sug[1] !== model){
+      st.gModel = sug[1]; save('settings'); toast('بدّلت النموذج لـ ' + sug[1]);
+      return callGemini(msgs, true);
+    }
+    throw new Error(msg);
+  }
+  const c = data.candidates?.[0];
+  const text = (c?.content?.parts || []).map(p => p.text || '').join('').trim();
+  if (!text) throw new Error(c?.finishReason ? 'ما جاوبش (' + c.finishReason + ')' : 'رد فارغ');
+  return text;
+}
+
+function parseActions(text){
+  const actions = [];
+  const clean = text.replace(/\[\[(SAVE|APPT|DEL_APPT)\|([^\]]*?)\]\]/g, (_, k, body) => {
+    actions.push({k, parts: body.split('|').map(s => s.trim())}); return '';
+  }).replace(/\n{3,}/g, '\n\n').trim();
+  return {clean, actions};
+}
+
+function addMemory(type, text){
+  text = (text || '').trim(); if (!text) return false;
+  if (!MEM_TYPES[type]) type = 'other';
+  if (S.memory.some(m => m.text.toLowerCase() === text.toLowerCase())) return false;
+  S.memory.push({id:uid(), type, text, t:Date.now()}); save('memory'); return true;
+}
+
+function applyActions(actions){
+  const notes = [];
+  for (const a of actions){
+    if (a.k === 'SAVE'){
+      const [type, ...rest] = a.parts; const text = rest.join(' | ');
+      if (S.settings.autoLearn){ if (addMemory(type, text)) notes.push({kind:'saved', text}); }
+      else notes.push({kind:'pendingSave', type, text});
+    } else if (a.k === 'APPT'){
+      const [when, ...rest] = a.parts; const title = rest.join(' | ') || 'موعد';
+      const d = new Date(when);
+      if (isNaN(d)) { notes.push({kind:'info', text:'ما فهمتش الوقت: ' + when}); continue; }
+      S.appts.push({id:uid(), title, when:d.getTime(), note:'', before:15, notified:false, preNotified:false, done:false});
+      save('appts'); notes.push({kind:'appt', text:`${title} — ${fmtDate(d)}`});
+    } else if (a.k === 'DEL_APPT'){
+      const i = S.appts.findIndex(x => x.id === a.parts[0]);
+      if (i > -1){ notes.push({kind:'info', text:'تلغى: ' + S.appts[i].title}); S.appts.splice(i, 1); save('appts'); }
+    }
+  }
+  return notes;
+}
+
+/* ---------------- المحادثة ---------------- */
+let pending = null; // {b64, thumb, dataUrl}
+let busy = false;
+
+async function sendMsg(){
+  if (busy) return;
+  const inp = $('#inp'); const text = inp.value.trim();
+  if (!text && !pending) return;
+  if (!hasKey()){ toast('حط مفتاح API في الإعدادات أولاً'); goPage('set'); return; }
+
+  const img = pending; clearPending();
+  const m = {id:uid(), role:'user', text, t:Date.now(), thumb: img ? img.thumb : null};
+  S.chat.push(m); inp.value = ''; autoGrow(); renderChat(); save('chat');
+
+  if (img && img.keep){
+    const b = dataURLtoBlob(img.dataUrl);
+    await phPut({id:uid(), blob:b, thumb:img.thumb, caption:text, t:Date.now()});
+    S.photos = await phAll();
+  }
+
+  busy = true; setState('PROCESSING');
+  try {
+    const reply = await callAI(img ? img.b64 : null);
+    const {clean, actions} = parseActions(reply);
+    const notes = applyActions(actions);
+    S.chat.push({id:uid(), role:'assistant', text:clean || '👍', notes, t:Date.now()});
+    save('chat'); renderChat();
+    busy = false;
+    if (S.settings.speak || liveMode) speak(clean, () => { if (liveMode) setTimeout(startListening, 300); });
+    else idleState();
+  } catch(e){
+    busy = false;
+    S.chat.push({id:uid(), role:'error', text:'⚠️ ' + e.message, t:Date.now()});
+    save('chat'); renderChat(); setState('ERROR');
+    if (liveMode) stopLive();
+  }
+}
+
+function fmtText(t){ return esc(t).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>'); }
+
+function renderChat(){
+  const box = $('#msgs');
+  if (!S.chat.length){
+    const n = S.settings.name ? ' ' + esc(S.settings.name) : '';
+    box.innerHTML = `<div class="hello">مرحبا${n} 👋<br>أنا ${esc(S.settings.botName || 'رفيق')}. اهدر معايا، علّمني لهجتك، وخليني نفكرك بمواعيدك.</div>
+      <div class="sugg">
+        <button>فكرني غدوة على 9 الصباح نروح للبنك</button>
+        <button>علّمك: «درك» معناها الآن</button>
+        <button>واش تعرف عليا؟</button>
+      </div>`;
+    return;
+  }
+  box.innerHTML = S.chat.map(m => {
+    const img = m.thumb ? `<img class="th" src="${m.thumb}" alt="">` : '';
+    let notes = '';
+    if (m.notes && m.notes.length){
+      notes = '<div class="notes">' + m.notes.map((n, i) => {
+        if (n.kind === 'saved') return `<span class="chip">🧠 تعلّمت: ${esc(n.text)}</span>`;
+        if (n.kind === 'appt') return `<span class="chip">📅 ${esc(n.text)}</span>`;
+        if (n.kind === 'pendingSave') return n.done
+          ? `<span class="chip">🧠 تحفظ: ${esc(n.text)}</span>`
+          : `<span class="chip">🧠 نحفظ «${esc(n.text)}»؟<button data-acc="${m.id}|${i}">إيه</button></span>`;
+        return `<span class="chip">${esc(n.text)}</span>`;
+      }).join('') + '</div>';
+    }
+    return `<div class="m ${m.role}">${img}${fmtText(m.text)}${notes}</div>`;
+  }).join('');
+  scrollChat();
+}
+function scrollChat(){ const b = $('#msgs'); requestAnimationFrame(() => b.scrollTop = b.scrollHeight); }
+
+function autoGrow(){ const t = $('#inp'); t.style.height = 'auto'; t.style.height = Math.min(t.scrollHeight, 130) + 'px'; }
+
+async function setPendingFromSource(src, keep){
+  const img = await loadImg(src);
+  const dataUrl = toJpeg(img, 1568, 0.85);
+  pending = {dataUrl, b64: dataUrl.split(',')[1], thumb: toJpeg(img, 360, 0.7), keep};
+  $('#pendImg').src = pending.thumb;
+  $('#pendSave').checked = keep;
+  $('#pend').style.display = 'flex';
+}
+function clearPending(){ if (pending) pending.keep = $('#pendSave').checked; $('#pend').style.display = 'none'; const p = pending; pending = null; return p; }
+
+/* ---------------- المواعيد ---------------- */
+function relTime(ms){
+  const d = ms - Date.now(), a = Math.abs(d), min = Math.round(a / 60000);
+  let s = min < 60 ? `${min} دقيقة` : min < 1440 ? `${Math.round(min/60)} ساعة` : `${Math.round(min/1440)} يوم`;
+  return d >= 0 ? 'بعد ' + s : 'فات ' + s;
+}
+function apptHTML(a){
+  return `<div class="item ${a.done ? 'done' : ''}">
+    <div class="tx"><b>${esc(a.title)}</b><div class="sub">${fmtDate(a.when)} · ${relTime(a.when)}${a.note ? ' · ' + esc(a.note) : ''}</div></div>
+    <button class="btn sec sm" data-done="${a.id}">${a.done ? '↩️' : '✔️'}</button>
+    <button class="btn dan sm" data-del="${a.id}">🗑</button></div>`;
+}
+function renderAppts(){
+  const now = Date.now();
+  const up = S.appts.filter(a => !a.done && a.when >= now).sort((a,b) => a.when - b.when);
+  const past = S.appts.filter(a => a.done || a.when < now).sort((a,b) => b.when - a.when).slice(0, 40);
+  $('#rList').innerHTML = up.length ? up.map(apptHTML).join('') : '<div class="empty">ما كاين حتى موعد</div>';
+  $('#rPast').innerHTML = past.length ? past.map(apptHTML).join('') : '<div class="empty">—</div>';
+  if (!$('#rWhen').value){ const d = new Date(Date.now() + 3600e3); d.setMinutes(0); $('#rWhen').value = localISO(d); }
+}
+
+let audioCtx;
+function beep(){
+  try {
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    [0, .35, .7].forEach(t => {
+      const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      o.frequency.value = 880; o.connect(g); g.connect(audioCtx.destination);
+      g.gain.setValueAtTime(.25, audioCtx.currentTime + t); g.gain.exponentialRampToValueAtTime(.001, audioCtx.currentTime + t + .3);
+      o.start(audioCtx.currentTime + t); o.stop(audioCtx.currentTime + t + .3);
+    });
+  } catch(e){}
+}
+function notify(title, body){
+  $('#aTitle').textContent = title; $('#aBody').textContent = body || ''; $('#alarm').classList.add('on');
+  beep(); navigator.vibrate?.([300, 150, 300]);
+  if ('Notification' in window && Notification.permission === 'granted'){
+    try { new Notification(title, {body: body || ''}); } catch(e){}
+  }
+  if (S.settings.speak) speak(title + '. ' + (body || ''));
+}
+function checkAppts(){
+  const now = Date.now(); let changed = false;
+  for (const a of S.appts){
+    if (a.done) continue;
+    if (!a.preNotified && a.before > 0 && now >= a.when - a.before * 60000 && now < a.when){
+      a.preNotified = true; changed = true; notify('قريب: ' + a.title, relTime(a.when));
+    }
+    if (!a.notified && now >= a.when){
+      a.notified = true; a.preNotified = true; changed = true;
+      notify('⏰ ' + a.title, now - a.when > 10 * 60000 ? 'هاذ الموعد فات ' + relTime(a.when).replace('فات ', '') : (a.note || 'درك وقتو'));
+    }
+  }
+  if (changed){ save('appts'); if ($('#p-rdv').classList.contains('on')) renderAppts(); }
+}
+
+/* ---------------- الصور ---------------- */
+let viewing = null, viewURL = null;
+async function addPhotos(files){
+  let n = 0;
+  for (const f of files){
+    try {
+      const img = await loadImg(f);
+      await phPut({id:uid(), blob:f, thumb:toJpeg(img, 360, 0.7), caption:'', t:Date.now()}); n++;
+    } catch(e){ toast(e.message); }
+  }
+  S.photos = await phAll(); renderPhotos(); if (n) toast(`تزادو ${n} صور`);
+}
+function renderPhotos(){
+  const q = $('#phSearch').value.trim().toLowerCase();
+  const list = S.photos.filter(p => !q || (p.caption || '').toLowerCase().includes(q)).sort((a,b) => b.t - a.t);
+  $('#phCount').textContent = `${S.photos.length} صورة`;
+  $('#phGrid').innerHTML = list.length
+    ? list.map(p => `<div class="ph" data-ph="${p.id}"><img src="${p.thumb}" alt="" loading="lazy">${p.caption ? `<span>${esc(p.caption)}</span>` : ''}</div>`).join('')
+    : '<div class="empty" style="grid-column:1/-1">ما كاين حتى صورة</div>';
+}
+function openViewer(id){
+  viewing = S.photos.find(p => p.id === id); if (!viewing) return;
+  if (viewURL) URL.revokeObjectURL(viewURL);
+  viewURL = URL.createObjectURL(viewing.blob);
+  $('#vImg').src = viewURL; $('#vCap').value = viewing.caption || '';
+  $('#viewer').classList.add('on');
+}
+function closeViewer(){ $('#viewer').classList.remove('on'); viewing = null; }
+
+/* ---------------- الذاكرة ---------------- */
+function renderMemory(){
+  const box = $('#mList');
+  if (!S.memory.length){ box.innerHTML = '<div class="card empty">مازال ما تعلّم والو</div>'; return; }
+  box.innerHTML = Object.keys(MEM_TYPES).map(k => {
+    const items = S.memory.filter(m => m.type === k).sort((a,b) => b.t - a.t);
+    if (!items.length) return '';
+    return `<div class="card"><h3>${MEM_TYPES[k]} (${items.length})</h3>` +
+      items.map(m => `<div class="item"><div class="tx">${esc(m.text)}</div><button class="btn dan sm" data-mdel="${m.id}">🗑</button></div>`).join('') + '</div>';
+  }).join('');
+}
+
+/* ---------------- الإعدادات ---------------- */
+function fillVoiceSelect(){
+  const sel = $('#sVoice'); if (!sel) return;
+  const sorted = [...voices].sort((a, b) => (b.lang.startsWith('ar') - a.lang.startsWith('ar')) || a.lang.localeCompare(b.lang));
+  sel.innerHTML = '<option value="">تلقائي (عربي)</option>' +
+    sorted.map(v => `<option value="${esc(v.name)}">${esc(v.name)} — ${esc(v.lang)}</option>`).join('');
+  sel.value = S.settings.voiceName || '';
+}
+function fillSettings(){
+  const s = S.settings;
+  $('#sBot').value = s.botName || 'رفيق'; $('#sProv').value = s.provider; $('#sGKey').value = s.gKey; $('#sGModel').value = s.gModel; provUI();
+  $('#sKey').value = s.apiKey; $('#sModel').value = s.model; $('#sName').value = s.name; $('#sCall').value = s.call;
+  $('#sLearn').checked = s.autoLearn; $('#sStyle').value = s.style || 'butler'; $('#sEngine').value = s.ttsEngine || 'gemini'; $('#sGVoice').value = s.gVoice || 'Charon'; $('#sGStyle').value = s.gStyle || ''; engUI(); $('#sLang').value = s.voiceLang; $('#sSpeak').checked = s.speak;
+  $('#sPitch').value = s.pitch; $('#sRate').value = s.rate;
+  $('#pitchV').textContent = s.pitch; $('#rateV').textContent = s.rate;
+  fillVoiceSelect();
+}
+function applyName(){ const n = S.settings.botName || 'رفيق'; $('#botTitle').textContent = n; document.title = n; }
+function engUI(){ const g = $('#sEngine').value === 'gemini'; $('#gvBox').hidden = !g; $('#dvBox').hidden = g; $('#dvHint').hidden = g; }
+function provUI(){ const g = $('#sProv').value !== 'claude'; $('#gBox').hidden = !g; $('#cBox').hidden = g; }
+function readSettings(){
+  Object.assign(S.settings, {
+    botName:$('#sBot').value.trim() || 'رفيق', provider:$('#sProv').value, gKey:$('#sGKey').value.trim(), gModel:$('#sGModel').value.trim() || 'gemini-3.8-flash',
+    apiKey:$('#sKey').value.trim(), model:$('#sModel').value, name:$('#sName').value.trim(), call:$('#sCall').value.trim(),
+    autoLearn:$('#sLearn').checked, style:$('#sStyle').value, ttsEngine:$('#sEngine').value, gVoice:$('#sGVoice').value, gStyle:$('#sGStyle').value.trim(), voiceLang:$('#sLang').value, voiceName:$('#sVoice').value,
+    pitch:+$('#sPitch').value, rate:+$('#sRate').value, speak:$('#sSpeak').checked
+  });
+}
+
+/* ---------------- النسخ الاحتياطي ---------------- */
+async function exportAll(){
+  toast('نحضّر الملف…');
+  const photos = [];
+  for (const p of S.photos) photos.push({id:p.id, caption:p.caption, t:p.t, thumb:p.thumb, data: await blobToDataURL(p.blob)});
+  const {apiKey, gKey, ...settings} = S.settings;
+  const out = {app:'rafiq', version:1, exported:new Date().toISOString(), settings, memory:S.memory, appts:S.appts, chat:S.chat, photos};
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(out)], {type:'application/json'}));
+  a.download = `rafiq-backup-${localISO(new Date()).slice(0,10)}.json`; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+}
+async function importAll(file){
+  try {
+    const d = JSON.parse(await file.text());
+    if (d.app !== 'rafiq') throw new Error('هاذ الملف ماشي نسخة تاع رفيق');
+    const merge = (key) => { const ids = new Set(S[key].map(x => x.id)); (d[key] || []).forEach(x => { if (!ids.has(x.id)) S[key].push(x); }); save(key); };
+    merge('memory'); merge('appts'); merge('chat');
+    S.chat.sort((a, b) => a.t - b.t); save('chat');
+    const have = new Set(S.photos.map(p => p.id));
+    for (const p of d.photos || []) if (!have.has(p.id)) await phPut({id:p.id, caption:p.caption, t:p.t, thumb:p.thumb, blob:dataURLtoBlob(p.data)});
+    if (d.settings) Object.assign(S.settings, d.settings, {apiKey:S.settings.apiKey, gKey:S.settings.gKey});
+    save('settings'); S.photos = await phAll();
+    renderChat(); fillSettings(); toast('تم الاستيراد ✔️');
+  } catch(e){ toast('فشل الاستيراد: ' + e.message); }
+}
+
+/* ---------------- الأحداث ---------------- */
+function bind(){
+  $$('nav button').forEach(b => b.onclick = () => goPage(b.dataset.p));
+
+  // المحادثة
+  $('#send').onclick = sendMsg;
+  $('#inp').addEventListener('input', autoGrow);
+  $('#inp').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && window.innerWidth > 700){ e.preventDefault(); sendMsg(); } });
+  $('#mic').onclick = () => listening ? stopListening() : startListening();
+  $('#live').onclick = toggleLive;
+  $('#attach').onclick = () => $('#attachFile').click();
+  $('#attachFile').onchange = async e => { const f = e.target.files[0]; e.target.value = ''; if (f) try { await setPendingFromSource(f, true); } catch(err){ toast(err.message); } };
+  $('#pendX').onclick = () => { $('#pend').style.display = 'none'; pending = null; };
+  $('#msgs').onclick = e => {
+    const s = e.target.closest('.sugg button'); if (s){ $('#inp').value = s.textContent; sendMsg(); return; }
+    const acc = e.target.dataset.acc;
+    if (acc){
+      const [mid, i] = acc.split('|'); const m = S.chat.find(x => x.id === mid); const n = m?.notes?.[+i];
+      if (n){ addMemory(n.type, n.text); n.done = true; save('chat'); renderChat(); }
+    }
+  };
+
+  // المواعيد
+  $('#rAdd').onclick = () => {
+    const title = $('#rTitle').value.trim(), w = $('#rWhen').value;
+    if (!title || !w){ toast('كتب العنوان والوقت'); return; }
+    S.appts.push({id:uid(), title, when:new Date(w).getTime(), note:$('#rNote').value.trim(), before:+$('#rBefore').value, notified:false, preNotified:false, done:false});
+    save('appts'); $('#rTitle').value = ''; $('#rNote').value = ''; renderAppts(); toast('تزاد الموعد ✔️');
+  };
+  $('#p-rdv').addEventListener('click', e => {
+    const d = e.target.dataset;
+    if (d.done){ const a = S.appts.find(x => x.id === d.done); a.done = !a.done; save('appts'); renderAppts(); }
+    if (d.del && confirm('نمسح هاذ الموعد؟')){ S.appts = S.appts.filter(x => x.id !== d.del); save('appts'); renderAppts(); }
+  });
+  $('#notifBtn').onclick = async () => {
+    if (!('Notification' in window)){ toast('الإشعارات مش مدعومة هنا — التنبيه يبان داخل البرنامج'); return; }
+    const p = await Notification.requestPermission();
+    toast(p === 'granted' ? 'الإشعارات مفعّلة ✔️' : 'ما تفعّلوش — التنبيه يبان داخل البرنامج برك');
+  };
+  $('#aOk').onclick = () => { $('#alarm').classList.remove('on'); stopSpeaking(); };
+
+  // الصور
+  $('#phAdd').onclick = () => $('#phFile').click();
+  $('#phFile').onchange = e => { const f = [...e.target.files]; e.target.value = ''; addPhotos(f); };
+  $('#phSearch').oninput = renderPhotos;
+  $('#phGrid').onclick = e => { const p = e.target.closest('[data-ph]'); if (p) openViewer(p.dataset.ph); };
+  $('#vClose').onclick = closeViewer;
+  $('#viewer').onclick = e => { if (e.target.id === 'viewer') closeViewer(); };
+  $('#vSave').onclick = async () => { viewing.caption = $('#vCap').value.trim(); await phPut(viewing); renderPhotos(); toast('تحفظ ✔️'); };
+  $('#vDel').onclick = async () => { if (!confirm('نمسح الصورة؟')) return; await phDel(viewing.id); S.photos = await phAll(); closeViewer(); renderPhotos(); };
+  $('#vDl').onclick = () => { const a = document.createElement('a'); a.href = viewURL; a.download = (viewing.caption || 'photo') + '.jpg'; a.click(); };
+  $('#vAsk').onclick = async () => { const p = viewing; closeViewer(); goPage('chat'); await setPendingFromSource(p.blob, false); $('#inp').value = p.caption ? 'هاذي: ' + p.caption + '. ' : ''; $('#inp').focus(); };
+
+  // الذاكرة
+  $('#mAdd').onclick = () => { if (addMemory($('#mType').value, $('#mText').value)){ $('#mText').value = ''; renderMemory(); toast('تحفظ ✔️'); } else toast('فارغة ولا راهي محفوظة'); };
+  $('#mList').onclick = e => { const id = e.target.dataset.mdel; if (id){ S.memory = S.memory.filter(m => m.id !== id); save('memory'); renderMemory(); } };
+
+  // الإعدادات
+  $('#sProv').onchange = provUI;
+  $('#sEngine').onchange = engUI;
+  $('#sPitch').oninput = e => $('#pitchV').textContent = e.target.value;
+  $('#sRate').oninput = e => $('#rateV').textContent = e.target.value;
+  $('#sPreset').onclick = () => {
+    const male = /naayf|hamed|shakir|maged|ryan|george|thomas|daniel|guy|davis|christopher|male|رجل/i;
+    const ar = voices.filter(v => v.lang.toLowerCase().startsWith('ar'));
+    const v = ar.find(v => male.test(v.name)) || ar[0];
+    $('#sVoice').value = v ? v.name : '';
+    $('#sEngine').value = 'gemini'; $('#sGVoice').value = 'Charon'; $('#sGStyle').value = 'refined British accent, calm and measured, polite, dry wit, crisp enunciation, warm but composed, like a sophisticated AI butler'; engUI();
+    $('#sPitch').value = 0.8; $('#sRate').value = 0.92; $('#sStyle').value = 'butler'; $('#sSpeak').checked = true;
+    $('#pitchV').textContent = '0.8'; $('#rateV').textContent = '0.92';
+    readSettings(); save('settings');
+    speak(`حاضر${S.settings.call ? ' ' + S.settings.call : ''}. كل الأنظمة تخدم. واش نقدر ندير لك؟`);
+  };
+  $('#sTest').onclick = () => { readSettings(); speak(`مرحبا${S.settings.call ? ' ' + S.settings.call : ''}. أنا ${S.settings.botName || 'رفيق'}، راني في الخدمة.`); };
+  $('#sSave').onclick = () => { readSettings(); save('settings'); applyName(); renderChat(); idleState(); toast('تحفظت الإعدادات ✔️'); };
+  $('#bExp').onclick = exportAll;
+  $('#bImp').onclick = () => $('#bFile').click();
+  $('#bFile').onchange = e => { const f = e.target.files[0]; e.target.value = ''; if (f) importAll(f); };
+  $('#clrChat').onclick = () => { if (confirm('نمسح المحادثة كاملة؟ (الذاكرة تبقى)')){ S.chat = []; save('chat'); renderChat(); } };
+  $('#clrAll').onclick = () => {
+    if (!confirm('نمسح كل بيانات رفيق (مواعيد، صور، ذاكرة، محادثة)؟')) return;
+    if (!confirm('متأكد؟ ما تقدرش ترجعها إلا بنسخة احتياطية.')) return;
+    db.close(); const r = indexedDB.deleteDatabase(NS + '_db'); r.onsuccess = r.onerror = () => location.reload();
+  };
+
+  // فتح الصوت أول ضغطة (شرط المتصفحات)
+  document.addEventListener('click', () => { try { audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)(); } catch(e){} }, {once:true});
+}
+
+/* ---------------- البداية ---------------- */
+(async function init(){
+  try {
+    await openDB();
+    S.settings = {...DEFAULTS, ...(await kvGet('settings') || {})};
+    S.memory = await kvGet('memory') || [];
+    S.appts = await kvGet('appts') || [];
+    S.chat = await kvGet('chat') || [];
+    S.photos = await phAll();
+  } catch(e){ toast('مشكل في التخزين: ' + e.message); }
+  bind(); applyName(); renderChat(); idleState(); checkAppts();
+  setInterval(checkAppts, 20000);
+})();
+</script>
+</body>
+</html>
