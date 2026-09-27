@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0b1118">
 <title>رفيق</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
 <style>
 /* ============ الألوان (بدّلها كيما تحب) ============ */
 :root{
@@ -853,7 +857,9 @@ function notify(title, body){
   $('#aTitle').textContent = title; $('#aBody').textContent = body || ''; $('#alarm').classList.add('on');
   beep(); navigator.vibrate?.([300, 150, 300]);
   if ('Notification' in window && Notification.permission === 'granted'){
-    try { new Notification(title, {body: body || ''}); } catch(e){}
+    const opts = {body: body || '', icon:'icon-192.png', badge:'icon-192.png', vibrate:[300,150,300], tag:'rafiq-' + Date.now()};
+    if (swReg) swReg.showNotification(title, opts).catch(() => {});
+    else { try { new Notification(title, opts); } catch(e){} }
   }
   if (S.settings.speak) speak(title + '. ' + (body || ''));
 }
@@ -1056,6 +1062,12 @@ function bind(){
 
   // فتح الصوت أول ضغطة (شرط المتصفحات)
   document.addEventListener('click', () => { try { audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)(); } catch(e){} }, {once:true});
+}
+
+/* ---------------- تطبيق (PWA) ---------------- */
+let swReg = null;
+if ('serviceWorker' in navigator && location.protocol === 'https:'){
+  navigator.serviceWorker.register('sw.js').then(r => swReg = r).catch(() => {});
 }
 
 /* ---------------- البداية ---------------- */
